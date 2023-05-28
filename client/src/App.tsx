@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
+import JoinGame from "./components/JoinGame";
+
 export default function App() {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<string[]>([]);
   const [socketInstance, setSocketInstance] = useState<any>("");
 
   const handleText = (e: any) => {
-    console.log("Handle Text");
-    console.log(e.target.value);
     const inputMessage = e.target.value;
     setMessage(inputMessage);
   };
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    console.log("Handle submit: ", message);
     socketInstance.emit("chat", message);
     setMessage("");
   };
@@ -25,7 +24,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    console.log("Creating socket...");
     // create websocket/connect
     const socket = io("localhost:5000/", {
       transports: ["websocket"],
@@ -45,18 +43,20 @@ export default function App() {
     socket.on("chat", handleChatMessage);
 
     socket.on("disconnect", (data: any) => {
-      console.log("disconnect");
       console.log(data);
     });
 
     // Clean up the event listener when the component unmounts
     return () => {
-      socket.off("chat", handleChatMessage);
+      socket.disconnect();
     };
   }, []);
 
-  return (
-    <div>
+  return <JoinGame />;
+}
+
+/*
+<div>
       <div>
         {messages.map((message, ind) => (
           <div key={ind}>{message}</div>
@@ -66,6 +66,4 @@ export default function App() {
         <input value={message} onChange={handleText} />
         <button type="submit">Send</button>
       </form>
-    </div>
-  );
-}
+    </div>*/

@@ -1,0 +1,73 @@
+@import "../utilities/variables";
+
+@mixin center() {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+@mixin color($backgroundColor, $borderColor, $opacity: 1) {
+  background-color: rgba($backgroundColor, $opacity);
+  border-color: rgba($borderColor, $opacity);
+}
+
+@keyframes form-error-animation {
+  @for $i from 1 through 6 {
+    $percent: $i * 10%;
+    $translateX: if($i % 2 == 0, 7%, -5%);
+    #{$percent} {
+      transform: translateX($translateX);
+    }
+  }
+}
+
+body {
+  background-color: $honey-yellow;
+  font-family: $noto-sans-jp;
+}
+
+.parent {
+  @include center();
+  flex-direction: column;
+  height: 100vh;
+
+  h1 {
+    color: $rich-black;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .container {
+    @include center();
+
+    .container-wrapper {
+      background-color: $pure-white;
+      border-radius: 5%;
+      padding: 5%;
+    }
+
+    .enter-btn {
+      @include color($rich-black, $deep-blue);
+      color: $pure-white;
+      display: block;
+      width: 100%;
+    }
+
+    .enter-btn:hover {
+      @include color($rich-black, $deep-blue, 0.7);
+    }
+
+    .form-error {
+      animation-duration: 1s;
+      animation-name: form-error-animation;
+      animation-timing-function: ease-in-out;
+    }
+  }
+  .error-alert {
+    bottom: 0;
+    color: $deep-blue;
+    position: absolute;
+    width: 100%;
+  }
+}
