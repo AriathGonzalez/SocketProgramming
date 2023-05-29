@@ -1,0 +1,35 @@
+@import "../../utilities/variables";
+
+body {
+  color: $pure-white;
+  font-family: $noto-sans-jp;
+}
+
+.container {
+  max-width: 100vw;
+
+  .row1 {
+    align-items: center;
+    background-color: rgba($honey-yellow, 0.5);
+    color: $deep-blue;
+    display: flex;
+    height: 20vh;
+    text-align: center;
+
+    .test {
+      font-weight: bold;
+    }
+  }
+  .row2 {
+    background-color: rgba($honey-yellow, 0.7);
+    height: 70vh;
+  }
+  .row3 {
+    background-color: rgba($deep-blue, 0.7);
+    height: 10vh;
+
+    p {
+      margin: 0;
+    }
+  }
+}

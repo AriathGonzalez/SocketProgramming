@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-import JoinGame from "./components/startup/JoinGame";
-import CreateGame from "./components/startup/CreateGame";
+import JoinGame from "./components/join/JoinGame";
+import CreateGame from "./components/create/CreateGame";
+import GameLobby from "./components/lobby/GameLobby";
 
 export default function App() {
   const [message, setMessage] = useState<string>("");
@@ -55,7 +56,7 @@ export default function App() {
 
   return (
     <>
-      <CreateGame />
+      <GameLobby />
     </>
   );
 }
