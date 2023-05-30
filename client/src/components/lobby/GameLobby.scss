@@ -1,5 +1,10 @@
 @import "../../utilities/variables";
 
+@mixin color($backgroundColor, $borderColor, $opacity: 1) {
+  background-color: rgba($backgroundColor, $opacity);
+  border-color: rgba($borderColor, $opacity);
+}
+
 body {
   color: $pure-white;
   font-family: $noto-sans-jp;
@@ -8,7 +13,7 @@ body {
 .container {
   max-width: 100vw;
 
-  .row1 {
+  .lobby-header {
     align-items: center;
     background-color: rgba($honey-yellow, 0.5);
     color: $deep-blue;
@@ -16,15 +21,26 @@ body {
     height: 20vh;
     text-align: center;
 
-    .test {
-      font-weight: bold;
+    .wrapper {
+      background-color: $pure-white;
     }
   }
-  .row2 {
+  .lobby-body {
     background-color: rgba($honey-yellow, 0.7);
     height: 70vh;
+
+    .enter-btn {
+      @include color($rich-black, $deep-blue);
+      color: $pure-white;
+      display: block;
+      width: 100%;
+    }
+
+    .enter-btn:hover {
+      @include color($rich-black, $deep-blue, 0.7);
+    }
   }
-  .row3 {
+  .lobby-footer {
     background-color: rgba($deep-blue, 0.7);
     height: 10vh;
 
@@ -32,4 +48,8 @@ body {
       margin: 0;
     }
   }
+}
+
+.bolded {
+  font-weight: bold;
 }
