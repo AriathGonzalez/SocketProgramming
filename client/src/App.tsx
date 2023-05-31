@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import JoinGame from "./components/join/JoinGame";
 import CreateGame from "./components/create/CreateGame";
 import GameLobby from "./components/lobby/GameLobby";
+import UsernameSelection from "./components/username/UsernameSelection";
 
 export default function App() {
   const [message, setMessage] = useState<string>("");
@@ -56,7 +57,7 @@ export default function App() {
 
   return (
     <>
-      <GameLobby />
+      <UsernameSelection />
     </>
   );
 }

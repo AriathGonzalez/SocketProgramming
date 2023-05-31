@@ -12,10 +12,10 @@ export default function JoinGame() {
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
-    }
 
-    setValidated(true);
-    setisErrorAlert(true);
+      setValidated(true);
+      setisErrorAlert(true);
+    }
   };
 
   useEffect(() => {
