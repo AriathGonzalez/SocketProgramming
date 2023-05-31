@@ -1,57 +1,14 @@
-/*
-// To connect with your mongoDB database
-const mongoose = require("mongoose");
-mongoose.connect(
-  "mongodb://localhost:27017/",
-  {
-    dbName: "yourDB-name",
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  (err) =>
-    err ? console.log(err) : console.log("Connected to yourDB-name database")
-);
-
-// Schema for users of app
-const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-});
-const User = mongoose.model("users", UserSchema);
-User.createIndexes();
-
-app.post("/register", async (req, resp) => {
-  try {
-    const user = new User(req.body);
-    let result = await user.save();
-    result = result.toObject();
-    if (result) {
-      delete result.password;
-      resp.send(req.body);
-      console.log(result);
-    } else {
-      console.log("User already register");
-    }
-  } catch (e) {
-    resp.send("Something Went Wrong");
-  }
-});
-*/
-
+// Game Session:
+// id, gradeLevel, playerCount, gamePin
+// Player:
+// id, username
+require("dotenv").config();
+require("./db/conns");
 const express = require("express");
-const socketIo = require("socket.io");
 const http = require("http");
+const socketIo = require("socket.io");
+const routes = require("./routes/posts");
+const { useSocket } = require("./sockets/socketEvents");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -62,18 +19,10 @@ const io = socketIo(server, {
   },
 }); // in case server and client run on different urls
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
+app.use(express.json());
+app.use("/api", routes);
 
-  socket.on("chat", (msg) => {
-    console.log("console chat message: ", msg);
-    io.emit("chat", msg);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
+useSocket(io);
 
 server.listen(PORT, (err) => {
   if (err) console.log(err);
