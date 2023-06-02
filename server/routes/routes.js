@@ -4,7 +4,22 @@ const Model = require("../models/model");
 const Player = require("../models/player");
 const Game = require("../models/game");
 
-//Post Method
+router.post("/game", async (req, res) => {
+  const data = new Game({
+    gradeLevel: req.body.gradeLevel,
+    playerCount: req.body.playerCount,
+    gamePIN: req.body.gamePIN,
+  });
+
+  try {
+    const dataToSave = await data.save();
+    res.status(200).json(dataToSave);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Post Method
 router.post("/post", async (req, res) => {
   const data = new Model({
     name: req.body.name,
@@ -43,14 +58,10 @@ router.get("/getOne/:id", async (req, res) => {
 router.patch("/update/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const udpatedData = req.body;
+    const updatedData = req.body;
     const options = { new: true };
 
-    const result = await Model.findByIdAndUpdate(
-      id,
-      { $set: udpatedData },
-      options
-    );
+    const result = await Model.findByIdAndUpdate(id, updatedData, options);
 
     res.send(result);
   } catch (error) {

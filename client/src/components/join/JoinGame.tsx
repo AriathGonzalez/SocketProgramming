@@ -7,15 +7,15 @@ export default function JoinGame() {
   const [validated, setValidated] = useState(false);
   const [isErrorAlert, setisErrorAlert] = useState(false);
 
-  const handleSubmit = (event: any) => {
-    const form = event.currentTarget;
+  const handleSubmit = (e: any) => {
+    const form = e.currentTarget;
     if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
-      setValidated(true);
       setisErrorAlert(true);
     }
+    setValidated(true);
   };
 
   useEffect(() => {
