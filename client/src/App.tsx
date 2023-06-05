@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import { Routes, Route } from "react-router-dom";
+
+import { useEffect, useState } from "react";
 
 import JoinGame from "./components/join/JoinGame";
 import CreateGame from "./components/create/CreateGame";
 import GameLobby from "./components/lobby/GameLobby";
 import UsernameSelection from "./components/username/UsernameSelection";
+import NotFound from "./components/error/NotFound";
+
+import "./App.scss";
 
 export default function App() {
   const [message, setMessage] = useState<string>("");
@@ -55,22 +60,15 @@ export default function App() {
     };
   }, []);
 
+  // Note: Look up nested routing.
   return (
-    <>
-      <CreateGame />
-    </>
+    <Routes>
+      <Route path="/" element={<JoinGame />} />
+      <Route path="/create" element={<CreateGame />} />
+      <Route path="/lobby" element={<GameLobby />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
-/*
-<div>
-      <div>
-        {messages.map((message, ind) => (
-          <div key={ind}>{message}</div>
-        ))}
-      </div>
-      <form onSubmit={handleSubmit}>
-        <input value={message} onChange={handleText} />
-        <button type="submit">Send</button>
-      </form>
-    </div>*/
+// <Route path="lobby/:gamePIN" element={<GameLobby />} />;

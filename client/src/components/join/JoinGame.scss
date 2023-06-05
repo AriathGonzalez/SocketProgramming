@@ -21,12 +21,8 @@
   }
 }
 
-body {
-  background-color: $honey-yellow;
-  font-family: $noto-sans-jp;
-}
-
 .parent {
+  background-color: $honey-yellow;
   @include center();
   flex-direction: column;
   height: 100vh;

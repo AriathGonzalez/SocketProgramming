@@ -5,12 +5,8 @@
   border-color: rgba($borderColor, $opacity);
 }
 
-body {
-  color: $pure-white;
-  font-family: $noto-sans-jp;
-}
-
 .container {
+  color: $pure-white;
   max-width: 100vw;
 
   .lobby-header {
