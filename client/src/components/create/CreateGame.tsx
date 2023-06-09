@@ -20,53 +20,23 @@ export default function CreateGame() {
     setPlayerCount(e.target.value);
   };
 
-  /*
-  const handleSubmit = async (e: any) => {
-    const form = e.currentTarget;
-
-    if (form.checkValidity() === false) {
-      e.preventDefault();
-      e.stopPropagation();
-    } else {
-      let gamePIN = generatePIN(1000000, 9999999);
-
-      const data = {
-        gradeLevel: gradeLevel,
-        playerCount: playerCount,
-        gamePIN: gamePIN,
-      };
-
-      try {
-        const res = await axios.post("api/game", data);
-        console.log(res);
-      } catch (error: any) {
-        console.error(error.message);
-      }
-      navigate("/lobby");
-    }
-    setValidated(true);
-  };
-  */
   const handleSubmit = (e: any) => {
+    e.preventDefault();
     const form = e.currentTarget;
 
     if (form.checkValidity() === false) {
-      e.preventDefault();
       e.stopPropagation();
     } else {
-      fetchGame();
+      postGame();
       navigate("/lobby");
     }
     setValidated(true);
   };
 
-  const fetchGame = async () => {
-    let gamePIN = generatePIN(1000000, 9999999);
-
+  const postGame = async () => {
     const data = {
       gradeLevel: gradeLevel,
       playerCount: playerCount,
-      gamePIN: gamePIN,
     };
 
     try {
@@ -75,12 +45,6 @@ export default function CreateGame() {
     } catch (error: any) {
       console.error(error.message);
     }
-  };
-
-  const generatePIN = (min: number, max: number) => {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min);
   };
 
   return (

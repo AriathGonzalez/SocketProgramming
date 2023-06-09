@@ -66,6 +66,7 @@ export default function App() {
       <Route path="/" element={<JoinGame />} />
       <Route path="/create" element={<CreateGame />} />
       <Route path="/lobby" element={<GameLobby />} />
+      <Route path="/username" element={<UsernameSelection />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

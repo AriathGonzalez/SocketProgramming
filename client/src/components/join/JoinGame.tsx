@@ -1,21 +1,49 @@
+import axios from "axios";
+import { BsFillExclamationCircleFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+
 import { useState, useEffect } from "react";
-import { Alert, Button, Container, Form, Row, Col } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Container,
+  Form,
+  Row,
+  Col,
+  InputGroup,
+} from "react-bootstrap";
 
 import "./JoinGame.scss";
 
 export default function JoinGame() {
-  const [validated, setValidated] = useState(false);
+  const navigate = useNavigate();
+  const [isError, setIsError] = useState(false);
   const [isErrorAlert, setisErrorAlert] = useState(false);
+  const [gamePIN, setGamePIN] = useState<number>(0);
 
-  const handleSubmit = (e: any) => {
-    const form = e.currentTarget;
-    if (form.checkValidity() === false) {
-      e.preventDefault();
-      e.stopPropagation();
-
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const status = await getGameByPIN(gamePIN);
+    if (status === 200) {
+      setIsError(false);
+      navigate("/username");
+    } else {
+      setIsError(true);
       setisErrorAlert(true);
     }
-    setValidated(true);
+  };
+
+  const handleGamePinChange = (e: any) => {
+    setGamePIN(e.target.value);
+  };
+
+  const getGameByPIN = async (gamePIN: number) => {
+    try {
+      const { status: status } = await axios.get(`api/game/${gamePIN}`);
+      return status;
+    } catch (error: any) {
+      console.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -37,13 +65,24 @@ export default function JoinGame() {
         <Row>
           <Col xs={12}>
             <div className="container-wrapper">
-              <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                <Form.Control
-                  className={`mb-3 ${isErrorAlert ? `form-error` : ``}`}
-                  type="text"
-                  placeholder="Game PIN"
-                  required
-                />
+              <Form onSubmit={handleSubmit}>
+                <InputGroup
+                  className={`mb-3 ${
+                    isErrorAlert ? `form-error-animation` : ``
+                  }`}
+                >
+                  <Form.Control
+                    className={isError ? "form-error" : ""}
+                    type="text"
+                    placeholder="Game PIN"
+                    onChange={handleGamePinChange}
+                  />
+                  {isError && (
+                    <InputGroup.Text className="icon-error">
+                      <BsFillExclamationCircleFill />
+                    </InputGroup.Text>
+                  )}
+                </InputGroup>
                 <Button className="enter-btn" type="submit">
                   Enter
                 </Button>

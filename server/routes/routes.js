@@ -4,11 +4,26 @@ const Model = require("../models/model");
 const Player = require("../models/player");
 const Game = require("../models/game");
 
+const generatePIN = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min);
+};
+
 router.post("/game", async (req, res) => {
+  let gamePIN = generatePIN(1000000, 9999999);
+
+  let gameExists = await Game.exists({ gamePIN: gamePIN });
+
+  while (gameExists) {
+    gamePIN = generatePIN(1000000, 9999999);
+    gameExists = await Game.exists({ gamePIN: gamePIN });
+  }
+
   const data = new Game({
     gradeLevel: req.body.gradeLevel,
     playerCount: req.body.playerCount,
-    gamePIN: req.body.gamePIN,
+    gamePIN: gamePIN,
   });
 
   try {
@@ -16,6 +31,20 @@ router.post("/game", async (req, res) => {
     res.status(200).json(dataToSave);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+router.get("/game/:gamePIN", async (req, res) => {
+  try {
+    const data = await Game.find({ gamePIN: req.params.gamePIN });
+
+    if (data.length === 0) {
+      res.status(400).json({ message: "Game PIN entered does not exist!" });
+    }
+
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

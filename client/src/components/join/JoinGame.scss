@@ -55,6 +55,15 @@
     }
 
     .form-error {
+      border-color: $error;
+    }
+
+    .icon-error {
+      border-color: $error;
+      color: $error;
+    }
+
+    .form-error-animation {
       animation-duration: 1s;
       animation-name: form-error-animation;
       animation-timing-function: ease-in-out;

@@ -5,6 +5,10 @@ const playerSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  gamePIN: {
+    required: true,
+    type: Number,
+  },
 });
 
 module.exports = mongoose.model("Player", playerSchema);
