@@ -26,7 +26,7 @@ export default function JoinGame() {
     const status = await getGameByPIN(gamePIN);
     if (status === 200) {
       setIsError(false);
-      navigate("/username");
+      navigate("/username", { state: { gamePIN: gamePIN } });
     } else {
       setIsError(true);
       setisErrorAlert(true);

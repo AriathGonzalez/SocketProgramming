@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Container, Form, Row, Col } from "react-bootstrap";
 
 import "./CreateGame.scss";
@@ -10,6 +10,7 @@ export default function CreateGame() {
   const navigate = useNavigate();
   const [gradeLevel, setGradeLevel] = useState<number>(0);
   const [playerCount, setPlayerCount] = useState<number>(0);
+  const [gamePIN, setGamePIN] = useState<number>(0);
   const [validated, setValidated] = useState(false);
 
   const handleGradeLevelChange = (e: any) => {
@@ -28,7 +29,6 @@ export default function CreateGame() {
       e.stopPropagation();
     } else {
       postGame();
-      navigate("/lobby");
     }
     setValidated(true);
   };
@@ -40,12 +40,19 @@ export default function CreateGame() {
     };
 
     try {
-      const res = await axios.post("api/game", data);
+      const { data: res } = await axios.post("api/game", data);
       console.log(res);
+      setGamePIN(res.gamePIN);
     } catch (error: any) {
       console.error(error.message);
     }
   };
+
+  useEffect(() => {
+    if (gamePIN != 0) {
+      navigate("/lobby", { state: { gamePIN: gamePIN } });
+    }
+  }, [gamePIN]);
 
   return (
     <div className="parent">

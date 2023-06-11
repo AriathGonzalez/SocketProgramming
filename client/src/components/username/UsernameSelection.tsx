@@ -1,3 +1,6 @@
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+
 import { useState, useEffect } from "react";
 
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
@@ -5,18 +8,42 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import "./UsernameSelection.scss";
 
 export default function UsernameSelection() {
+  const location = useLocation();
   const [validated, setValidated] = useState(false);
   const [isErrorAlert, setisErrorAlert] = useState(false);
+  const [username, setUsername] = useState<string>("");
 
-  const handleSubmit = (event: any) => {
-    const form = event.currentTarget;
+  // TODO: Then, in lobby have these users join the lobby. Start with the sockets.
+
+  const handleSubmit = (e: any) => {
+    const form = e.currentTarget;
     if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
       setValidated(true);
       setisErrorAlert(true);
+    } else {
+      postPlayer();
     }
+  };
+
+  const postPlayer = async () => {
+    const data = {
+      username: username,
+      gamePIN: location.state.gamePIN,
+    };
+
+    try {
+      const res = await axios.post("api/player", data);
+      console.log(res);
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  };
+
+  const handleUsernameChange = (e: any) => {
+    setUsername(e.target.value);
   };
 
   useEffect(() => {
@@ -44,6 +71,7 @@ export default function UsernameSelection() {
                   type="text"
                   placeholder="Username"
                   maxLength={15}
+                  onChange={handleUsernameChange}
                   required
                 />
                 <Button className="enter-btn" type="submit">

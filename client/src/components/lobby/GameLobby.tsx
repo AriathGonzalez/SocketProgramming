@@ -1,4 +1,5 @@
 import { BsFillExclamationCircleFill } from "react-icons/bs";
+import { useLocation } from "react-router-dom";
 
 import { Fragment } from "react";
 import { Container, Row, Col, Stack, Button } from "react-bootstrap";
@@ -20,14 +21,16 @@ const users = [
 ];
 
 export default function GameLobby() {
+  const location = useLocation();
+
   return (
     <Container>
       <Row className="lobby-header">
         <Col>
           <div className="wrapper">
             <h1>
-              Join at localhost:3000/join with Game PIN:
-              <span className="bolded"> 1234567</span>
+              Join at localhost:3000/ with Game PIN:
+              <span className="bolded"> {location.state.gamePIN}</span>
             </h1>
           </div>
         </Col>

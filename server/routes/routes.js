@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Model = require("../models/model");
-const Player = require("../models/player");
 const Game = require("../models/game");
+const Player = require("../models/player");
 
 const generatePIN = (min, max) => {
   min = Math.ceil(min);
@@ -47,6 +47,22 @@ router.get("/game/:gamePIN", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.post("/player", async (req, res) => {
+  const data = new Player({
+    username: req.body.username,
+    gamePIN: req.body.gamePIN,
+  });
+
+  try {
+    const dataToSave = await data.save();
+    res.status(200).json(dataToSave);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// authenticate route
 
 // Post Method
 router.post("/post", async (req, res) => {
