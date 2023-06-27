@@ -1,108 +1,103 @@
 // TODO: When game created in /create, only allow playerCount into the game as well as those who entered the gamePIN.
+// TODO: Change api call to only accept local url, instead of http:localhost:5000/...
 
-/*
-create-room (argument: room)
-delete-room (argument: room)
-join-room (argument: room, id)
-leave-room (argument: room, id)*/
+const axios = require("axios");
 
-let users = [];
+const postGame = async (gradeLevel, maxPlayerCount) => {
+  const data = {
+    gradeLevel: gradeLevel,
+    maxPlayerCount: maxPlayerCount,
+  };
 
-const messages = {
-  general: [],
-  random: [],
-  jokes: [],
-  javascript: [],
+  try {
+    const { data: res } = await axios.post(
+      "http://localhost:5000/api/game",
+      data
+    );
+    return res;
+  } catch (error) {
+    console.error(error.message);
+  }
 };
 
-const handleJoinRoom = (socket, io) => {
-  socket.on(`room-${roomNum}`, (gamePIN, username) => {
-    io.to(`room-${roomNum}`).emit("some event");
-    // Handle joining room
-  });
-};
+const postPlayer = async (username, gamePIN) => {
+  const data = {
+    username: username,
+    gamePIN: gamePIN,
+  };
 
-const handleSubmitAnswer = (socket, io) => {
-  socket.on("submitAnswer", (gamePIN, playerID, answer) => {
-    // handle submitting answer
-  });
-};
+  try {
+    console.log("In postPlayer: Before get game");
+    const { data: gameRes } = await axios.get(
+      `http://localhost:5000/api/game/${gamePIN}`
+    );
+    const currentPlayerCount = gameRes[0].currentPlayerCount;
+    const maxPlayerCount = gameRes[0].maxPlayerCount;
+    console.log(gameRes[0]);
 
-const handleNextQuestion = (socket, io) => {
-  socket.on("nextQuestion", (gamePIN) => {
-    // handle next question
-  });
-};
-
-const handleChat = (socket, io) => {
-  socket.on("chat", (msg) => {
-    console.log("console chat message: ", msg);
-    io.emit("chat", msg);
-  });
+    console.log("After get game...");
+    if (currentPlayerCount + 1 <= maxPlayerCount) {
+      console.log("In currentPlayerCount + 1...");
+      const updatedData = {
+        currentPlayerCount: currentPlayerCount + 1,
+      };
+      try {
+        await axios.patch(
+          `http://localhost:5000/api/game/${gamePIN}`,
+          updatedData
+        );
+      } catch (error) {
+        console.log(error.message);
+      }
+      console.log("after updating game...");
+      const res = await axios.post("http://localhost:5000/api/player", data);
+      return res;
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
 };
 
 const handleDisconnect = (socket) => {
-  socket.on("disconnect", () => {
-    users = users.filter((u) => u.id !== socket.id);
-    // If user disconnects, update list of users connected to room
-    io.emit("Users now", users);
+  socket.on("disconnect", (room) => {
+    // room.leaveRoom(roomID);
     console.log("A user disconnected");
   });
 };
 
 const useSocket = (io) => {
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     console.log("A user connected");
-    socket.on("join server", (username) => {
-      const user = {
-        username,
-        id: socket.id,
-      };
 
-      users.push(user);
-      io.emit("new user", users);
-    });
-
-    socket.on("join room", (roomName, cb) => {
-      socket.join(roomName);
-      cb(messeges[roomName]);
-    });
-
-    socket.on(
-      "send message",
-      ({ content, to, sender, chatName, isChannel }) => {
-        if (isChannel) {
-          const payload = {
-            content,
-            chatName,
-            sender,
-          };
-          socket.to(to).emit("New message", payload);
-        }
-        // Private message
-        else {
-          const payload = {
-            content,
-            chatName: sender,
-            sender,
-          };
-          socket.to(to).emit("New message", payload);
-        }
-        // to make sure room exists
-        if (messages[chatName]) {
-          // Update db, so late users can view chat history
-          messages[chatName].push({
-            sender,
-            content,
-          });
-        }
+    socket.on("createGame", async (data) => {
+      try {
+        const game = await postGame(data.gradeLevel, data.maxPlayerCount);
+        socket.emit("gameCreated", {
+          message: "Game created successfully",
+          gamePIN: game.gamePIN,
+        });
+      } catch (error) {
+        socket.emit("gameCreationError", {
+          error: "Failed to create the game",
+        });
       }
-    );
-    //socket.join(`room-${roomNum}`);
-    //handleJoinRoom(socket, io);
-    //handleSubmitAnswer(socket, io);
-    //handleNextQuestion(socket, io);
-    //handleChat(socket, io);
+    });
+
+    socket.on("joinGame", async (data) => {
+      try {
+        console.log("In joinGame: Before postPlayer...");
+        // Create player, increment to that game room
+        const player = await postPlayer(data.username, data.gamePIN);
+
+        socket.emit("gameJoined", {
+          message: "Game joined successfully",
+          username: player.username,
+        });
+      } catch (error) {
+        socket.emit("gameJoinError", { error: "Failed to join the game" });
+      }
+    });
+
     handleDisconnect(socket);
   });
 };

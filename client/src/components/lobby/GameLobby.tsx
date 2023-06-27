@@ -1,27 +1,33 @@
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
-import { Fragment } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Container, Row, Col, Stack, Button } from "react-bootstrap";
 
 import "./GameLobby.scss";
 
+// TODO: Pass in the socket from /create to the lobby.
 // Note: Should probably change to "Ready" when max number of players joined.
-// Note: Add an id attribute to users.
-
-const users = [
-  "user1",
-  "user2",
-  "user3",
-  "user4",
-  "user5",
-  "user6",
-  "user7",
-  "user8",
-];
 
 export default function GameLobby() {
   const location = useLocation();
+  const [players, setPlayers] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data: response } = await axios.get(
+          `api/player/${location.state.gamePIN}`
+        );
+        console.log(response);
+        //setPlayers(response)
+      } catch (error: any) {
+        console.error(error.message);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <Container>
@@ -45,12 +51,6 @@ export default function GameLobby() {
             </Button>
           </Col>
         </Row>
-        {users.map((user, index) => (
-          <Fragment key={index}>
-            {index % 2 === 0 && index !== 0 && <Row />}
-            <Col>{user}</Col>
-          </Fragment>
-        ))}
       </Row>
       <Row className="lobby-footer">
         <Stack direction="horizontal" gap={3}>
@@ -61,3 +61,13 @@ export default function GameLobby() {
     </Container>
   );
 }
+
+/*
+{
+  users.map((user, index) => (
+    <Fragment key={index}>
+      {index % 2 === 0 && index !== 0 && <Row />}
+      <Col>{user}</Col>
+    </Fragment>
+  ));
+}*/

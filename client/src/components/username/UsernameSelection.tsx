@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import { io } from "socket.io-client";
 
 import { useState, useEffect } from "react";
 
@@ -12,39 +13,57 @@ export default function UsernameSelection() {
   const [validated, setValidated] = useState(false);
   const [isErrorAlert, setisErrorAlert] = useState(false);
   const [username, setUsername] = useState<string>("");
-
-  // TODO: Then, in lobby have these users join the lobby. Start with the sockets.
+  const [socketInstance, setSocketInstance] = useState<any>(null);
 
   const handleSubmit = (e: any) => {
+    e.preventDefault();
     const form = e.currentTarget;
     if (form.checkValidity() === false) {
-      e.preventDefault();
       e.stopPropagation();
-
       setValidated(true);
       setisErrorAlert(true);
     } else {
-      postPlayer();
-    }
-  };
-
-  const postPlayer = async () => {
-    const data = {
-      username: username,
-      gamePIN: location.state.gamePIN,
-    };
-
-    try {
-      const res = await axios.post("api/player", data);
-      console.log(res);
-    } catch (error: any) {
-      console.error(error.message);
+      console.log("In Username Selection: Before socket emit...");
+      socketInstance.emit("joinGame", {
+        username: username,
+        gamePIN: location.state.gamePIN,
+      });
     }
   };
 
   const handleUsernameChange = (e: any) => {
     setUsername(e.target.value);
   };
+
+  useEffect(() => {
+    const socket = io("localhost:5000/", {
+      transports: ["websocket"],
+      withCredentials: true,
+    });
+
+    setSocketInstance(socket);
+
+    socket.on("connect", () => {
+      console.log(socket.id);
+    });
+
+    socket.on("connect_error", () => {
+      setTimeout(() => socket.connect(), 5000);
+    });
+
+    socket.on("gameJoinError", (data) => {
+      // Perform any error handling or display error messages
+    });
+
+    socket.on("disconnect", (data: any) => {
+      console.log(data);
+    });
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     let timer: any;

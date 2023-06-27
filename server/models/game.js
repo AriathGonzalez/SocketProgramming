@@ -5,7 +5,12 @@ const gameSchema = new mongoose.Schema({
     required: true,
     type: Number,
   },
-  playerCount: {
+  currentPlayerCount: {
+    required: true,
+    type: Number,
+    default: 0,
+  },
+  maxPlayerCount: {
     required: true,
     type: Number,
   },
