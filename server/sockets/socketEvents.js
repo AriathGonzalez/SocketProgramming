@@ -1,7 +1,13 @@
-// TODO: When game created in /create, only allow playerCount into the game as well as those who entered the gamePIN.
 // TODO: Change api call to only accept local url, instead of http:localhost:5000/...
 
 const axios = require("axios");
+
+const getPlayers = async (gamePIN) => {
+  const { data: response } = await axios.get(
+    `http://localhost:5000/api/player/${gamePIN}`
+  );
+  return response;
+};
 
 const postGame = async (gradeLevel, maxPlayerCount) => {
   const data = {
@@ -35,9 +41,7 @@ const postPlayer = async (username, gamePIN) => {
     const maxPlayerCount = gameRes[0].maxPlayerCount;
     console.log(gameRes[0]);
 
-    console.log("After get game...");
     if (currentPlayerCount + 1 <= maxPlayerCount) {
-      console.log("In currentPlayerCount + 1...");
       const updatedData = {
         currentPlayerCount: currentPlayerCount + 1,
       };
@@ -49,9 +53,7 @@ const postPlayer = async (username, gamePIN) => {
       } catch (error) {
         console.log(error.message);
       }
-      console.log("after updating game...");
       const res = await axios.post("http://localhost:5000/api/player", data);
-      return res;
     }
   } catch (error) {
     console.error(error.message);
@@ -60,7 +62,6 @@ const postPlayer = async (username, gamePIN) => {
 
 const handleDisconnect = (socket) => {
   socket.on("disconnect", (room) => {
-    // room.leaveRoom(roomID);
     console.log("A user disconnected");
   });
 };
@@ -85,13 +86,15 @@ const useSocket = (io) => {
 
     socket.on("joinGame", async (data) => {
       try {
-        console.log("In joinGame: Before postPlayer...");
-        // Create player, increment to that game room
-        const player = await postPlayer(data.username, data.gamePIN);
+        await postPlayer(data.username, data.gamePIN);
 
-        socket.emit("gameJoined", {
+        const players = await getPlayers(data.gamePIN);
+        const playerCount = Object.keys(players).length;
+
+        socket.broadcast.emit("gameJoined", {
           message: "Game joined successfully",
-          username: player.username,
+          players: players,
+          playerCount: playerCount,
         });
       } catch (error) {
         socket.emit("gameJoinError", { error: "Failed to join the game" });

@@ -1,32 +1,36 @@
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 
 import { Fragment, useState, useEffect } from "react";
 import { Container, Row, Col, Stack, Button } from "react-bootstrap";
 
 import "./GameLobby.scss";
+import socket from "../socket";
 
-// TODO: Pass in the socket from /create to the lobby.
 // Note: Should probably change to "Ready" when max number of players joined.
 
 export default function GameLobby() {
   const location = useLocation();
-  const [players, setPlayers] = useState<string[]>([]);
+  const gamePIN = location.state?.gamePIN;
+  const [players, setPlayers] = useState([]);
+  const [playerCount, setPlayerCount] = useState(0);
+
+  const handleGameJoined = (data: any) => {
+    setPlayers(data.players);
+    setPlayerCount(data.playerCount);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: response } = await axios.get(
-          `api/player/${location.state.gamePIN}`
-        );
-        console.log(response);
-        //setPlayers(response)
-      } catch (error: any) {
-        console.error(error.message);
-      }
+    socket.on("gameJoined", handleGameJoined);
+
+    socket.on("disconnect", (data: any) => {
+      console.log(data);
+    });
+
+    return () => {
+      socket.off("gameJoined", handleGameJoined);
+      socket.off("disconnect");
     };
-    fetchData();
   }, []);
 
   return (
@@ -36,14 +40,14 @@ export default function GameLobby() {
           <div className="wrapper">
             <h1>
               Join at localhost:3000/ with Game PIN:
-              <span className="bolded"> {location.state.gamePIN}</span>
+              <span className="bolded"> {gamePIN}</span>
             </h1>
           </div>
         </Col>
       </Row>
       <Row className="lobby-body">
         <Row className="bolded">
-          <Col>8 Players</Col>
+          <Col>{playerCount} Players</Col>
           <Col>MathWhizz</Col>
           <Col>
             <Button className="enter-btn bolded" type="submit">
@@ -51,6 +55,12 @@ export default function GameLobby() {
             </Button>
           </Col>
         </Row>
+        {players.map((player: any, index: number) => (
+          <Fragment key={player.id}>
+            {index % 2 === 0 && index !== 0 && <Row />}
+            <Col>{player.username}</Col>
+          </Fragment>
+        ))}
       </Row>
       <Row className="lobby-footer">
         <Stack direction="horizontal" gap={3}>
@@ -61,13 +71,3 @@ export default function GameLobby() {
     </Container>
   );
 }
-
-/*
-{
-  users.map((user, index) => (
-    <Fragment key={index}>
-      {index % 2 === 0 && index !== 0 && <Row />}
-      <Col>{user}</Col>
-    </Fragment>
-  ));
-}*/

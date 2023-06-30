@@ -1,19 +1,16 @@
-import axios from "axios";
 import { useLocation } from "react-router-dom";
-import { io } from "socket.io-client";
 
 import { useState, useEffect } from "react";
-
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 
 import "./UsernameSelection.scss";
+import socket from "../socket";
 
 export default function UsernameSelection() {
   const location = useLocation();
   const [validated, setValidated] = useState(false);
   const [isErrorAlert, setisErrorAlert] = useState(false);
   const [username, setUsername] = useState<string>("");
-  const [socketInstance, setSocketInstance] = useState<any>(null);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -24,7 +21,7 @@ export default function UsernameSelection() {
       setisErrorAlert(true);
     } else {
       console.log("In Username Selection: Before socket emit...");
-      socketInstance.emit("joinGame", {
+      socket.emit("joinGame", {
         username: username,
         gamePIN: location.state.gamePIN,
       });
@@ -36,21 +33,6 @@ export default function UsernameSelection() {
   };
 
   useEffect(() => {
-    const socket = io("localhost:5000/", {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
-
-    setSocketInstance(socket);
-
-    socket.on("connect", () => {
-      console.log(socket.id);
-    });
-
-    socket.on("connect_error", () => {
-      setTimeout(() => socket.connect(), 5000);
-    });
-
     socket.on("gameJoinError", (data) => {
       // Perform any error handling or display error messages
     });
@@ -61,7 +43,8 @@ export default function UsernameSelection() {
 
     // Clean up the event listener when the component unmounts
     return () => {
-      socket.disconnect();
+      socket.off("gameJoinError");
+      socket.off("disconnect");
     };
   }, []);
 

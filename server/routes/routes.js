@@ -79,7 +79,8 @@ router.post("/player", async (req, res) => {
 
 router.get("/player/:gamePIN", async (req, res) => {
   try {
-    const data = await Player.findById(req.params.gamePIN);
+    const query = { gamePIN: req.params.gamePIN };
+    const data = await Player.find(query);
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
