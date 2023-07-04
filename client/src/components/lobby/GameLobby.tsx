@@ -20,16 +20,17 @@ export default function GameLobby() {
     setPlayerCount(data.playerCount);
   };
 
+  const handleDisconnect = (data: any) => {
+    console.log(data);
+  };
+
   useEffect(() => {
     socket.on("gameJoined", handleGameJoined);
-
-    socket.on("disconnect", (data: any) => {
-      console.log(data);
-    });
+    socket.on("disconnect", handleDisconnect);
 
     return () => {
       socket.off("gameJoined", handleGameJoined);
-      socket.off("disconnect");
+      socket.off("disconnect", handleDisconnect);
     };
   }, []);
 

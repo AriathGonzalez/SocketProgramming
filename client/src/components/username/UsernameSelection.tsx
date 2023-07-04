@@ -20,7 +20,6 @@ export default function UsernameSelection() {
       setValidated(true);
       setisErrorAlert(true);
     } else {
-      console.log("In Username Selection: Before socket emit...");
       socket.emit("joinGame", {
         username: username,
         gamePIN: location.state.gamePIN,
@@ -32,19 +31,22 @@ export default function UsernameSelection() {
     setUsername(e.target.value);
   };
 
+  const handleGameJoinError = (data: any) => {
+    const { error } = data;
+    console.log(error);
+  };
+
+  const handleDisconnect = (data: any) => {
+    console.log(data);
+  };
+
   useEffect(() => {
-    socket.on("gameJoinError", (data) => {
-      // Perform any error handling or display error messages
-    });
+    socket.on("gameJoinError", handleGameJoinError);
+    socket.on("disconnect", handleDisconnect);
 
-    socket.on("disconnect", (data: any) => {
-      console.log(data);
-    });
-
-    // Clean up the event listener when the component unmounts
     return () => {
-      socket.off("gameJoinError");
-      socket.off("disconnect");
+      socket.off("gameJoinError", handleGameJoinError);
+      socket.off("disconnect", handleDisconnect);
     };
   }, []);
 

@@ -27,35 +27,37 @@ export default function CreateGame() {
     if (form.checkValidity() === false) {
       e.stopPropagation();
     } else {
-      console.log("About to emit!");
       socket.emit("createGame", { gradeLevel, maxPlayerCount });
     }
     setValidated(true);
   };
 
+  const handleCreateGameError = (data: any) => {
+    const { message, gamePIN } = data;
+    console.log(message);
+    navigate("/lobby", {
+      state: { gamePIN: gamePIN },
+    });
+  };
+
+  const handleGameCreationError = (data: any) => {
+    const { error } = data;
+    console.log(error);
+  };
+
+  const handleDisconnect = (data: any) => {
+    console.log(data);
+  };
+
   useEffect(() => {
-    socket.on("gameCreated", (data: any) => {
-      const { message, gamePIN } = data;
-      console.log(message);
-      navigate("/lobby", {
-        state: { gamePIN: gamePIN },
-      });
-    });
-
-    socket.on("gameCreationError", (data: any) => {
-      const { error } = data;
-      console.log(error);
-    });
-
-    socket.on("disconnect", (data: any) => {
-      console.log(data);
-    });
+    socket.on("gameCreated", handleCreateGameError);
+    socket.on("createGameError", handleGameCreationError);
+    socket.on("disconnect", handleDisconnect);
 
     return () => {
-      socket.off("connect");
-      socket.off("gameCreated");
-      socket.off("gameCreationError");
-      socket.off("disconnect");
+      socket.off("gameCreated", handleCreateGameError);
+      socket.off("gameCreationError", handleGameCreationError);
+      socket.off("disconnect", handleDisconnect);
     };
   }, []);
 
